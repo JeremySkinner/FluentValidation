@@ -82,12 +82,6 @@
 		}
 
 		[Fact]
-		public void ShouldHaveChildValidator_should_be_true() {
-			_validator.RuleFor(person => person.Address).SetValidator(new AddressValidatorWithOnFailure()).OnFailure((p,ctx, value)=> { Debug.WriteLine(p.Forename); });
-			_validator.ShouldHaveChildValidator(x => x.Address, typeof(AddressValidatorWithOnFailure));
-		}
-
-		[Fact]
 		public void ShouldHaveChildValidator_works_with_Include() {
 			_validator.Include(new InlineValidator<Person>() {
 				v => v.RuleFor(x => x.Forename).NotNull(),

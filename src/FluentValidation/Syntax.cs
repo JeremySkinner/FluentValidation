@@ -41,28 +41,30 @@ namespace FluentValidation {
 		/// </summary>
 		/// <param name="validator">The validator to set</param>
 		/// <returns></returns>
-		IRuleBuilderOptions<T, TProperty> SetValidator(IPropertyValidator<T, TProperty> validator);
+		IRuleBuilderOptions<T, TProperty, TValidator> SetValidator<TValidator>(TValidator validator)
+			where TValidator : IPropertyValidator<T, TProperty>;
 
 		/// <summary>
 		/// Associates an async validator with this the property for this rule builder.
 		/// </summary>
 		/// <param name="validator">The validator to set</param>
 		/// <returns></returns>
-		IRuleBuilderOptions<T, TProperty> SetAsyncValidator(IAsyncPropertyValidator<T, TProperty> validator);
+		IRuleBuilderOptions<T, TProperty, TValidator> SetAsyncValidator<TValidator>(TValidator validator)
+			where TValidator : IAsyncPropertyValidator<T, TProperty>;
 
 		/// <summary>
 		/// Associates an instance of IValidator with the current property rule.
 		/// </summary>
 		/// <param name="validator">The validator to use</param>
 		/// <param name="ruleSets"></param>
-		IRuleBuilderOptions<T, TProperty> SetValidator(IValidator<TProperty> validator, params string[] ruleSets);
+		IRuleBuilderOptions<T, TProperty, IChildValidatorAdaptor> SetValidator(IValidator<TProperty> validator, params string[] ruleSets);
 
 		/// <summary>
 		/// Associates a validator provider with the current property rule.
 		/// </summary>
 		/// <param name="validatorProvider">The validator provider to use</param>
 		/// <param name="ruleSets"></param>
-		IRuleBuilderOptions<T, TProperty> SetValidator<TValidator>(Func<T, TValidator> validatorProvider, params string[] ruleSets)
+		IRuleBuilderOptions<T, TProperty, IChildValidatorAdaptor> SetValidator<TValidator>(Func<T, TValidator> validatorProvider, params string[] ruleSets)
 			where TValidator : IValidator<TProperty>;
 
 		/// <summary>
@@ -70,7 +72,7 @@ namespace FluentValidation {
 		/// </summary>
 		/// <param name="validatorProvider">The validator provider to use</param>
 		/// <param name="ruleSets"></param>
-		IRuleBuilderOptions<T, TProperty> SetValidator<TValidator>(Func<T, TProperty, TValidator> validatorProvider, params string[] ruleSets)
+		IRuleBuilderOptions<T, TProperty, IChildValidatorAdaptor> SetValidator<TValidator>(Func<T, TProperty, TValidator> validatorProvider, params string[] ruleSets)
 			where TValidator : IValidator<TProperty>;
 	}
 
@@ -80,11 +82,12 @@ namespace FluentValidation {
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <typeparam name="TProperty"></typeparam>
-	public interface IRuleBuilderOptions<T, out TProperty> : IRuleBuilder<T, TProperty> {
+	/// <typeparam name="TValidator"></typeparam>
+	public interface IRuleBuilderOptions<T, out TProperty, TValidator> : IRuleBuilder<T, TProperty> {
 		/// <summary>
 		/// Creates a scope for declaring dependent rules.
 		/// </summary>
-		IRuleBuilderOptions<T, TProperty> DependentRules(Action action);
+		IRuleBuilderOptions<T, TProperty, TValidator> DependentRules(Action action);
 	}
 
 	/// <summary>

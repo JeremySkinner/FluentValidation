@@ -34,11 +34,27 @@ namespace FluentValidation.Tests {
 		}
 
 		[Fact]
+		public void Invokes_custom_validator_with_option() {
+			var validator = new InlineValidator<Person>();
+			validator.RuleFor(x => x.Forename).SetValidator(new LegacyNotNullValidator()).WithMessage("{PropertyName} Required");
+			var result = validator.Validate(new Person());
+			result.Errors.Single().ErrorMessage.ShouldEqual("Forename Required");
+		}
+
+		[Fact]
 		public async Task Invokes_custom_validator_async() {
 			var validator = new InlineValidator<Person>();
 			validator.RuleFor(x => x.Forename).SetValidator(new LegacyNotNullValidator());
 			var result = await validator.ValidateAsync(new Person());
 			result.Errors.Single().ErrorMessage.ShouldEqual("A value is required for Forename.");
+		}
+
+		[Fact]
+		public async Task Invokes_custom_validator_with_option_async() {
+			var validator = new InlineValidator<Person>();
+			validator.RuleFor(x => x.Forename).SetValidator(new LegacyNotNullValidator()).WithMessage("{PropertyName} Required");
+			var result = await validator.ValidateAsync(new Person());
+			result.Errors.Single().ErrorMessage.ShouldEqual("Forename Required");
 		}
 
 		public class LegacyNotNullValidator : PropertyValidator {

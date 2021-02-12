@@ -19,9 +19,10 @@
 namespace FluentValidation.Validators {
 	using System.Threading;
 	using System.Threading.Tasks;
+	using Features;
 	using Internal;
 
-	public abstract class AsyncPropertyValidator<T, TProperty> : IAsyncPropertyValidator<T, TProperty> {
+	public abstract class AsyncPropertyValidator<T, TProperty> : IAsyncPropertyValidator<T, TProperty>, IStandardAsyncFeatures {
 		string IPropertyValidator.GetDefaultMessageTemplate(string errorCode)
 			=> GetDefaultMessageTemplate(errorCode);
 

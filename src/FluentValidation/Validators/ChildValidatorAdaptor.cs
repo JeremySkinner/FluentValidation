@@ -4,30 +4,33 @@ namespace FluentValidation.Validators {
 	using System.Linq;
 	using System.Threading;
 	using System.Threading.Tasks;
+	using Features;
 	using Internal;
 	using Results;
 
 	/// <summary>
 	/// Indicates that this validator wraps another validator.
 	/// </summary>
-	public interface IChildValidatorAdaptor {
+	public interface IChildValidatorAdaptor : ISupportsConditions, ISupportsAsyncConditions, ISupportsPropertyNameOverride {
 		/// <summary>
 		/// The type of the underlying validator
 		/// </summary>
 		Type ValidatorType { get; }
 	}
 
-	public class ChildValidatorAdaptor<T,TProperty> : NoopPropertyValidator<T,TProperty>, IAsyncPropertyValidator<T, TProperty>, IChildValidatorAdaptor {
+	public class ChildValidatorAdaptor<T,TProperty> : IPropertyValidator<T,TProperty>, IAsyncPropertyValidator<T, TProperty>, IChildValidatorAdaptor {
 		private readonly Func<ValidationContext<T>, TProperty, IValidator<TProperty>> _validatorProvider;
 		private readonly IValidator<TProperty> _validator;
 
-		public override string Name => "ChildValidatorAdaptor";
+		public string Name => "ChildValidatorAdaptor";
 
 		public Type ValidatorType { get; }
 
 		public string[] RuleSets { get; set; }
 
 		internal bool PassThroughParentContext { get; set; }
+
+		string IPropertyValidator.GetDefaultMessageTemplate(string errorCode) => null;
 
 		public ChildValidatorAdaptor(IValidator<TProperty> validator, Type validatorType) {
 			_validator = validator;
@@ -39,7 +42,7 @@ namespace FluentValidation.Validators {
 			ValidatorType = validatorType;
 		}
 
-		public override bool IsValid(ValidationContext<T> context, TProperty value) {
+		public virtual bool IsValid(ValidationContext<T> context, TProperty value) {
 			if (value == null) {
 				return true;
 			}

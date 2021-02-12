@@ -74,7 +74,7 @@ namespace FluentValidation {
 		/// <typeparam name="T"></typeparam>
 		/// <typeparam name="TProperty"></typeparam>
 		/// <returns></returns>
-		public static IRuleBuilderOptions<T, TProperty> InjectValidator<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder, params string[] ruleSets) {
+		public static IRuleBuilderOptions<T, TProperty, IChildValidatorAdaptor> InjectValidator<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder, params string[] ruleSets) {
 			return ruleBuilder.InjectValidator((s, ctx) => s.GetService<IValidatorFactory>().GetValidator<TProperty>(), ruleSets);
 		}
 
@@ -87,15 +87,16 @@ namespace FluentValidation {
 		/// <typeparam name="T"></typeparam>
 		/// <typeparam name="TProperty"></typeparam>
 		/// <returns></returns>
-		public static IRuleBuilderOptions<T, TProperty> InjectValidator<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder, Func<IServiceProvider, ValidationContext<T>, IValidator<TProperty>> callback, params string[] ruleSets) {
+		public static IRuleBuilderOptions<T, TProperty, IChildValidatorAdaptor> InjectValidator<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder, Func<IServiceProvider, ValidationContext<T>, IValidator<TProperty>> callback, params string[] ruleSets) {
 			var adaptor = new ChildValidatorAdaptor<T,TProperty>((context, _) => {
 				var serviceProvider = context.GetServiceProvider();
 				var validator = callback(serviceProvider, context);
 				return validator;
 			}, typeof(IValidator<TProperty>));
 
-			adaptor.RuleSets = ruleSets;
-			return ruleBuilder.SetAsyncValidator(adaptor);
+			var rb = (RuleBuilder<T, TProperty>) ruleBuilder;
+			rb.Rule.AddAsyncValidator(adaptor, adaptor);
+			return new ComponentRuleBuilder<T, TProperty, IChildValidatorAdaptor>(rb.Rule, rb.ParentValidator);
 		}
 	}
 }

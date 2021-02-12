@@ -17,9 +17,11 @@
 #endregion
 
 namespace FluentValidation.Validators {
+	using Features;
 	using Internal;
 
-	public abstract class PropertyValidator<T, TProperty> : IPropertyValidator<T,TProperty> {
+	// TODO: In future versions remove ISupportsAsyncConditions for non-async validators.
+	public abstract class PropertyValidator<T, TProperty> : IPropertyValidator<T,TProperty>, IStandardFeatures, ISupportsAsyncConditions {
 
 		string IPropertyValidator.GetDefaultMessageTemplate(string errorCode)
 			=> GetDefaultMessageTemplate(errorCode);

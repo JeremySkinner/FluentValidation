@@ -23,6 +23,7 @@ namespace FluentValidation.Validators {
 	using System;
 	using System.Threading;
 	using System.Threading.Tasks;
+	using Features;
 	using Internal;
 
 #pragma warning disable 618
@@ -51,7 +52,7 @@ namespace FluentValidation.Validators {
 	}
 
 	[Obsolete("The PropertyValidator class is deprecated and will be removed in FluentValidation 11. Please migrate to the generic PropertyValidator<T,TProperty> class.")]
-	public abstract class PropertyValidator : IPropertyValidator {
+	public abstract class PropertyValidator : IPropertyValidator, IStandardFeatures {
 
 		internal bool IsValidInternal(PropertyValidatorContext context)
 			=> IsValid(context);

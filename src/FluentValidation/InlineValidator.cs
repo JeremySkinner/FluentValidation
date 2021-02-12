@@ -44,7 +44,7 @@ namespace FluentValidation {
 		/// <summary>
 		/// Allows configuration of the validator.
 		/// </summary>
-		public void Add<TProperty>(Func<InlineValidator<T>, IRuleBuilderOptions<T, TProperty>> ruleCreator) {
+		public void Add<TProperty, TValidator>(Func<InlineValidator<T>, IRuleBuilderOptions<T, TProperty, TValidator>> ruleCreator) {
 			ruleCreator(this);
 		}
 
