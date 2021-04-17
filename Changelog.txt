@@ -1,5 +1,6 @@
 11.0.0 -
 Ensure property covariance is properly handled throughout the internal model (#1713)
+Throw exceptions when async validator is invoked synchronously (#1705)
 
 10.3.0 -
 Update Russian translations (#1761)

@@ -125,17 +125,15 @@
 		}
 
 		[Fact]
-		public void WhenAsyncWithOnFailure_should_invoke_condition_on_inner_validator_invoked_synchronously() {
-			bool shouldNotBeTrue = false;
+		public void WhenAsyncWithOnFailure_throws_when_async_condition_on_inner_validator_invoked_synchronously() {
 			var validator = new TestValidator();
 			validator.RuleFor(x => x.Surname)
 				.NotEqual("foo")
 				.WhenAsync((x, token) => Task.FromResult(x.Id > 0))
-				.OnFailure(x => shouldNotBeTrue = true);
+				.OnFailure(x => {});
 
-			var result = validator.Validate(new Person {Id = 0, Surname = "foo"});
-			result.Errors.Count.ShouldEqual(0);
-			shouldNotBeTrue.ShouldBeFalse();
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() =>
+				validator.Validate(new Person {Id = 0, Surname = "foo"}));
 		}
 
 		[Fact]

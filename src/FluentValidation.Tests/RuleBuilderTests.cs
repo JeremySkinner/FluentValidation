@@ -142,10 +142,12 @@ namespace FluentValidation.Tests {
 		}
 
 		[Fact]
-		public void Nullable_object_with_async_condition_should_not_throw() {
+		public async Task Nullable_object_with_async_condition_should_not_throw() {
 			_validator.RuleFor(x => x.NullableInt.Value)
-				.GreaterThanOrEqualTo(3).WhenAsync((x,c) => Task.FromResult(x.NullableInt != null));
-			_validator.Validate(new ValidationContext<Person>(new Person(), new PropertyChain(), new DefaultValidatorSelector()));
+				.GreaterThanOrEqualTo(3)
+				.WhenAsync((x,c) => Task.FromResult(x.NullableInt != null));
+
+			await _validator.ValidateAsync(new ValidationContext<Person>(new Person(), new PropertyChain(), new DefaultValidatorSelector()));
 		}
 
 		[Fact]

@@ -32,7 +32,6 @@ namespace FluentValidation.Tests {
 
 		public ValidatorTesterTester() {
 			validator = new TestValidator();
-			validator.RuleFor(x => x.CreditCard).Must(creditCard => !string.IsNullOrEmpty(creditCard)).WhenAsync((x, cancel) => Task.Run(() => { return x.Age >= 18; }));
 			validator.RuleFor(x => x.Forename).NotNull();
 			validator.RuleForEach(person => person.NickNames).MinimumLength(5);
 			CultureScope.SetDefaultCulture();
@@ -586,13 +585,21 @@ namespace FluentValidation.Tests {
 		[Theory]
 		[InlineData(42, null)]
 		[InlineData(42, "")]
-		public void ShouldHaveValidationError_should_not_throw_when_there_are_validation_errors__WhenAsyn_is_used(int age, string cardNumber) {
+		public async Task ShouldHaveValidationError_should_not_throw_when_there_are_validation_errors__WhenAsyn_is_used(int age, string cardNumber) {
 			Person testPerson = new Person() {
 				CreditCard = cardNumber,
 				Age = age
 			};
 
-			validator.TestValidate(testPerson).ShouldHaveValidationErrorFor(x => x.CreditCard);
+			validator.RuleFor(x => x.CreditCard)
+				.Must(creditCard => !string.IsNullOrEmpty(creditCard))
+				.WhenAsync((x, cancel) => Task.FromResult(x.Age >= 18));
+
+			// Throws when called sync.
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() =>
+				validator.TestValidate(testPerson).ShouldHaveValidationErrorFor(x => x.CreditCard));
+
+			(await validator.TestValidateAsync(testPerson)).ShouldHaveValidationErrorFor(x => x.CreditCard);
 		}
 
 		[Theory]
@@ -627,13 +634,22 @@ namespace FluentValidation.Tests {
 		[Theory]
 		[InlineData(42, null)]
 		[InlineData(42, "")]
-		public void ShouldNotHaveValidationError_should_throw_when_there_are_validation_errors__WhenAsyn_is_used(int age, string cardNumber) {
+		public async Task ShouldNotHaveValidationError_should_throw_when_there_are_validation_errors__WhenAsyn_is_used(int age, string cardNumber) {
 			Person testPerson = new Person() {
 				CreditCard = cardNumber,
 				Age = age
 			};
 
-			Assert.Throws<ValidationTestException>(() => validator.TestValidate(testPerson).ShouldNotHaveValidationErrorFor(x => x.CreditCard));
+			validator.RuleFor(x => x.CreditCard)
+				.Must(creditCard => !string.IsNullOrEmpty(creditCard))
+				.WhenAsync((x, cancel) => Task.FromResult(x.Age >= 18));
+
+			// Throws async exception when invoked synchronously
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() => validator.TestValidate(testPerson).ShouldNotHaveValidationErrorFor(x => x.CreditCard));
+
+			// Executes normally when run async.
+			await Assert.ThrowsAsync<ValidationTestException>(async () =>
+				(await validator.TestValidateAsync(testPerson)).ShouldNotHaveValidationErrorFor(x => x.CreditCard));
 		}
 
 		[Fact]

@@ -183,7 +183,14 @@ namespace FluentValidation.TestHelper {
 		/// </summary>
 		public static TestValidationResult<T> TestValidate<T>(this IValidator<T> validator, T objectToTest, Action<ValidationStrategy<T>> options = null) where T : class {
 			options ??= _ => { };
-			var validationResult = validator.Validate(objectToTest, options);
+			ValidationResult validationResult;
+			try {
+				validationResult = validator.Validate(objectToTest, options);
+			}
+			catch (AsyncValidatorInvokedSynchronouslyException ex) {
+				throw new AsyncValidatorInvokedSynchronouslyException(ex.ValidatorType.Name + " contains asynchronous rules - please use the asynchronous test methods instead.");
+			}
+
 			return new TestValidationResult<T>(validationResult);
 		}
 

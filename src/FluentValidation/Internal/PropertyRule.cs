@@ -99,9 +99,7 @@ namespace FluentValidation.Internal {
 			}
 
 			if (AsyncCondition != null) {
-				if (!AsyncCondition(context, default).GetAwaiter().GetResult()) {
-					return;
-				}
+				throw new AsyncValidatorInvokedSynchronouslyException();
 			}
 
 			var cascade = CascadeMode;
@@ -117,12 +115,12 @@ namespace FluentValidation.Internal {
 					continue;
 				}
 
-				if (step.HasAsyncCondition && !step.InvokeAsyncCondition(context, CancellationToken.None).GetAwaiter().GetResult()) {
-					continue;
+				if (step.HasAsyncCondition) {
+					throw new AsyncValidatorInvokedSynchronouslyException();
 				}
 
 				if (step.ShouldValidateAsynchronously(context)) {
-					InvokePropertyValidatorAsync(context, accessor, propertyName, step, default).GetAwaiter().GetResult();
+					throw new AsyncValidatorInvokedSynchronouslyException();
 				}
 				else {
 					InvokePropertyValidator(context, accessor, propertyName, step);
