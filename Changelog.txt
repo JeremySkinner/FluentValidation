@@ -1,3 +1,6 @@
+11.0.0 -
+Ensure property covariance is properly handled throughout the internal model (#1713)
+
 10.3.0 -
 Update Russian translations (#1761)
 Add Thai translations (#1768)

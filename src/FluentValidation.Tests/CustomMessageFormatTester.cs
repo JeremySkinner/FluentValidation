@@ -37,12 +37,12 @@ namespace FluentValidation.Tests {
 			validator.RuleFor(x => x.Surname).NotNull().WithMessage("{PropertyName}");
 			string error = validator.Validate(new Person()).Errors.Single().ErrorMessage;
 			error.ShouldEqual(expected);
-        }
+		}
 
 		[Fact]
 		public void Uses_custom_delegate_for_building_message() {
 			validator.RuleFor(x => x.Surname).NotNull().Configure(cfg => {
-				cfg.MessageBuilder = context => "Test " + ((Person)context.InstanceToValidate).Id;
+				cfg.MessageBuilder = context => "Test " + context.InstanceToValidate.Id;
 			});
 
 			var error = validator.Validate(new Person()).Errors.Single().ErrorMessage;
@@ -63,7 +63,6 @@ namespace FluentValidation.Tests {
 			result.Errors[0].ErrorMessage.ShouldEqual("Foo");
 			result.Errors[1].ErrorMessage.ShouldEqual("'Surname' must not be empty.");
 		}
-
 
 		[Fact]
 		public void Uses_property_value_in_message() {
