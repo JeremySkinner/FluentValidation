@@ -37,14 +37,8 @@ namespace FluentValidation.Internal {
 			_asyncPropertyValidator = asyncPropertyValidator;
 		}
 
-		public override IPropertyValidator Validator {
-			get {
-				if (_propertyValidator is ILegacyValidatorAdaptor l) {
-					return l.UnderlyingValidator;
-				}
-				return (IPropertyValidator) _propertyValidator ?? _asyncPropertyValidator;
-			}
-		}
+		public override IPropertyValidator Validator
+			=> (IPropertyValidator) _propertyValidator ?? _asyncPropertyValidator;
 
 		private protected override bool SupportsAsynchronousValidation
 			=> _asyncPropertyValidator != null;

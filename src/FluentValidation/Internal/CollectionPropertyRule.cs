@@ -115,9 +115,7 @@ namespace FluentValidation.Internal {
 			}
 
 			if (AsyncCondition != null) {
-				if (! AsyncCondition(context, default).GetAwaiter().GetResult()) {
-					return;
-				}
+				throw new AsyncValidatorInvokedSynchronouslyException();
 			}
 
 			var filteredValidators = GetValidatorsToExecute(context);
@@ -165,7 +163,7 @@ namespace FluentValidation.Internal {
 					foreach (var validator in filteredValidators) {
 						context.MessageFormatter.Reset();
 						if (validator.ShouldValidateAsynchronously(context)) {
-							InvokePropertyValidatorAsync(context, valueToValidate, propertyNameToValidate, validator, index, default).GetAwaiter().GetResult();
+							throw new AsyncValidatorInvokedSynchronouslyException();
 						}
 						else {
 							InvokePropertyValidator(context, valueToValidate, propertyNameToValidate, validator, index);
@@ -186,13 +184,7 @@ namespace FluentValidation.Internal {
 
 			AfterValidate:
 
-			if (context.Failures.Count > totalFailures) {
-				var failuresThisRound = context.Failures.Skip(totalFailures).ToList();
-#pragma warning disable 618
-				OnFailure?.Invoke(context.InstanceToValidate, failuresThisRound);
-#pragma warning restore 618
-			}
-			else if (DependentRules != null) {
+			if (context.Failures.Count <= totalFailures && DependentRules != null) {
 				foreach (var dependentRule in DependentRules) {
 					dependentRule.Validate(context);
 				}
@@ -231,9 +223,7 @@ namespace FluentValidation.Internal {
 			}
 
 			if (AsyncCondition != null) {
-				if (! AsyncCondition(context, default).GetAwaiter().GetResult()) {
-					return;
-				}
+				throw new AsyncValidatorInvokedSynchronouslyException();
 			}
 
 			var filteredValidators = await GetValidatorsToExecuteAsync(context, cancellation);
@@ -303,13 +293,7 @@ namespace FluentValidation.Internal {
 
 			AfterValidate:
 
-			if (context.Failures.Count > totalFailures) {
-				var failuresThisRound = context.Failures.Skip(totalFailures).ToList();
-#pragma warning disable 618
-				OnFailure?.Invoke(context.InstanceToValidate, failuresThisRound);
-#pragma warning restore 618
-			}
-			else if (DependentRules != null) {
+			if (context.Failures.Count <= totalFailures && DependentRules != null) {
 				foreach (var dependentRule in DependentRules) {
 					cancellation.ThrowIfCancellationRequested();
 					await dependentRule.ValidateAsync(context, cancellation);
@@ -339,9 +323,7 @@ namespace FluentValidation.Internal {
 				}
 
 				if (component.HasAsyncCondition) {
-					if (!component.InvokeAsyncCondition(context, default).GetAwaiter().GetResult()) {
-						validators.Remove(component);
-					}
+					throw new AsyncValidatorInvokedSynchronouslyException();
 				}
 			}
 
@@ -381,9 +363,6 @@ namespace FluentValidation.Internal {
 			if (!valid) {
 				PrepareMessageFormatterForValidationError(context, value);
 				var failure = CreateValidationError(context, value, component);
-#pragma warning disable 618
-				component.OnFailure?.Invoke(context.InstanceToValidate, context, value, failure.ErrorMessage);
-#pragma warning restore 618
 				context.Failures.Add(failure);
 			}
 		}
@@ -395,9 +374,6 @@ namespace FluentValidation.Internal {
 			if (!valid) {
 				PrepareMessageFormatterForValidationError(context, value);
 				var failure = CreateValidationError(context, value, component);
-#pragma warning disable 618
-				component.OnFailure?.Invoke(context.InstanceToValidate, context, value, failure.ErrorMessage);
-#pragma warning restore 618
 				context.Failures.Add(failure);
 			}
 		}

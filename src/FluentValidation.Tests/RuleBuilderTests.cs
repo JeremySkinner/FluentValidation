@@ -58,7 +58,8 @@ namespace FluentValidation.Tests {
 		[Fact]
 		public void Should_set_custom_error() {
 			builder.SetValidator(new TestPropertyValidator<Person, string>()).WithMessage("Bar");
-			_rule.Current.GetErrorMessage(null, default).ShouldEqual("Bar");
+			var component = (RuleComponent<Person, string>) _rule.Current;
+			component.GetErrorMessage(null, default).ShouldEqual("Bar");
 		}
 
 		[Fact]
@@ -141,10 +142,12 @@ namespace FluentValidation.Tests {
 		}
 
 		[Fact]
-		public void Nullable_object_with_async_condition_should_not_throw() {
+		public async Task Nullable_object_with_async_condition_should_not_throw() {
 			_validator.RuleFor(x => x.NullableInt.Value)
-				.GreaterThanOrEqualTo(3).WhenAsync((x,c) => Task.FromResult(x.NullableInt != null));
-			_validator.Validate(new ValidationContext<Person>(new Person(), new PropertyChain(), new DefaultValidatorSelector()));
+				.GreaterThanOrEqualTo(3)
+				.WhenAsync((x,c) => Task.FromResult(x.NullableInt != null));
+
+			await _validator.ValidateAsync(new ValidationContext<Person>(new Person(), new PropertyChain(), new DefaultValidatorSelector()));
 		}
 
 		[Fact]

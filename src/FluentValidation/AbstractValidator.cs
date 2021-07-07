@@ -93,16 +93,22 @@ namespace FluentValidation {
 
 			EnsureInstanceNotNull(context.InstanceToValidate);
 
-			foreach (var rule in Rules) {
-				rule.Validate(context);
+			try {
+				foreach (var rule in Rules) {
+					rule.Validate(context);
 
-				if (CascadeMode == CascadeMode.Stop && result.Errors.Count > 0) {
-					// Bail out if we're "failing-fast".
-					// Check for > 0 rather than == 1 because a rule chain may have overridden the Stop behaviour to Continue
-					// meaning that although the first rule failed, it actually generated 2 failures if there were 2 validators
-					// in the chain.
-					break;
+					if (CascadeMode == CascadeMode.Stop && result.Errors.Count > 0) {
+						// Bail out if we're "failing-fast".
+						// Check for > 0 rather than == 1 because a rule chain may have overridden the Stop behaviour to Continue
+						// meaning that although the first rule failed, it actually generated 2 failures if there were 2 validators
+						// in the chain.
+						break;
+					}
 				}
+			}
+			catch (AsyncValidatorInvokedSynchronouslyException) {
+				bool wasInvokedByMvc = context.RootContextData.ContainsKey("InvokedByMvc");
+				throw new AsyncValidatorInvokedSynchronouslyException(GetType(), wasInvokedByMvc);
 			}
 
 			SetExecutedRulesets(result, context);

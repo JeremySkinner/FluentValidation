@@ -28,6 +28,7 @@ namespace FluentValidation.AspNetCore {
 	using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 	using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 	using Microsoft.Extensions.DependencyInjection;
+	using Results;
 
 	/// <summary>
 	/// ModelValidatorProvider implementation only used for child properties.
@@ -110,7 +111,15 @@ namespace FluentValidation.AspNetCore {
 					context = interceptor.BeforeAspNetValidation(mvContext.ActionContext, context) ?? context;
 				}
 
-				var result = validator.Validate(context);
+
+				ValidationResult result;
+
+				try {
+					result = validator.Validate(context);
+				}
+				catch (AsyncValidatorInvokedSynchronouslyException ex) {
+					throw new AsyncValidatorInvokedSynchronouslyException($"The validator \"{ex.ValidatorType.Name}\" can't be used with ASP.NET automatic validation as it contains asynchronous rules.");
+				}
 
 				if (interceptor != null) {
 					// allow the user to provide a custom collection of failures, which could be empty.

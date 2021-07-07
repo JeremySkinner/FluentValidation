@@ -115,6 +115,18 @@ namespace FluentValidation.Tests {
 				When(x => x != null, () => {
 					RuleFor(x => x).Must(x => x != "foo");
 				});
+			}
+
+			protected override void EnsureInstanceNotNull(object instanceToValidate) {
+				//bad.
+			}
+		}
+
+		class AsyncBadValidatorDisablesNullCheck : AbstractValidator<string> {
+			public AsyncBadValidatorDisablesNullCheck() {
+				When(x => x != null, () => {
+					RuleFor(x => x).Must(x => x != "foo");
+				});
 
 				WhenAsync(async (x, ct) => x != null, () => {
 					RuleFor(x => x).Must(x => x != "foo");
@@ -125,6 +137,7 @@ namespace FluentValidation.Tests {
 				//bad.
 			}
 		}
+
 
 		[Fact]
 		public void Shared_When_is_not_applied_to_grouped_rules_when_initial_predicate_is_false() {
@@ -416,14 +429,14 @@ namespace FluentValidation.Tests {
 		}
 
 		[Fact]
-		public void Executes_custom_rule_when_async_condition_true() {
+		public async Task Executes_custom_rule_when_async_condition_true() {
 			var validator = new TestValidator();
 			validator.WhenAsync(async (x,c) =>(true), () => {
 				validator.RuleFor(x=>x).Custom((x,ctx) => ctx.AddFailure(new ValidationFailure("foo", "bar")));
 
 			});
 
-			var result = validator.Validate(new Person());
+			var result = await validator.ValidateAsync(new Person());
 			result.IsValid.ShouldBeFalse();
 		}
 
@@ -459,14 +472,14 @@ namespace FluentValidation.Tests {
 		}
 
 		[Fact]
-		public void Nested_async_conditions_with_Custom_rule() {
+		public async Task Nested_async_conditions_with_Custom_rule() {
 			var validator = new TestValidator();
 			validator.When(x => true, () => {
 				validator.WhenAsync(async (x,c) =>(false), () => {
 					validator.RuleFor(x=>x).Custom((x,ctx) => ctx.AddFailure(new ValidationFailure("Custom", "The validation failed")));
 				});
 			});
-			var result = validator.Validate(new Person());
+			var result = await validator.ValidateAsync(new Person());
 			result.IsValid.ShouldBeTrue();
 		}
 
@@ -667,7 +680,7 @@ namespace FluentValidation.Tests {
 
 		[Fact]
 		public async Task Doesnt_throw_NullReferenceException_when_instance_not_null_async() {
-			var v = new BadValidatorDisablesNullCheck();
+			var v = new AsyncBadValidatorDisablesNullCheck();
 			var result = await v.ValidateAsync((string) null);
 			result.IsValid.ShouldBeTrue();
 		}

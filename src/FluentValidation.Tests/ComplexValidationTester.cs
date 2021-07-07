@@ -134,13 +134,12 @@ namespace FluentValidation.Tests {
 		}
 
 		[Fact]
-		public void Async_condition_should_work_with_complex_property_when_validator_invoked_synchronously() {
+		public void Async_condition_throws_when_validator_invoked_synchronously() {
 			var validator = new TestValidator() {
 				v => v.RuleFor(x => x.Address).SetValidator(new AddressValidator()).WhenAsync(async (x, c) => x.Address.Line1 == "foo")
 			};
 
-			var result = validator.Validate(person);
-			result.IsValid.ShouldBeTrue();
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() => validator.Validate(person));
 		}
 
 		[Fact]

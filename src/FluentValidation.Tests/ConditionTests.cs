@@ -106,8 +106,8 @@ namespace FluentValidation.Tests {
 				v => v.RuleFor(x => x.Surname).NotNull().NotEqual("foo").WhenAsync(async (x,c) => x.Id > 0)
 			};
 
-			var result = validator.Validate(new Person());
-			result.Errors.Count.ShouldEqual(0);
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() =>
+				validator.Validate(new Person()));
 		}
 
 		[Fact]
@@ -144,41 +144,42 @@ namespace FluentValidation.Tests {
 		}
 
 		[Fact]
-		public void Async_condition_executed_synchronosuly_with_synchronous_role() {
+		public void Async_condition_throws_when_executed_synchronosuly_with_synchronous_role() {
 			var validator = new TestValidator();
 			validator.RuleFor(x => x.Surname).NotNull()
 				.WhenAsync((x, token) => Task.FromResult(false));
-			var result = validator.Validate(new Person());
-			result.IsValid.ShouldBeTrue();
+
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() =>
+				validator.Validate(new Person()));
 		}
 
 		[Fact]
-		public void Async_condition_executed_synchronosuly_with_asynchronous_rule() {
+		public void Async_condition_throws_when_executed_synchronosuly_with_asynchronous_rule() {
 			var validator = new TestValidator();
 			validator.RuleFor(x => x.Surname)
 				.MustAsync((surname, c) => Task.FromResult(surname != null))
 				.WhenAsync((x, token) => Task.FromResult(false));
-			var result = validator.Validate(new Person());
-			result.IsValid.ShouldBeTrue();
+
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() => validator.Validate(new Person()));
 		}
 
 		[Fact]
-		public void Async_condition_executed_synchronosuly_with_synchronous_collection_role() {
+		public void Async_condition_throws_when_executed_synchronosuly_with_synchronous_collection_role() {
 			var validator = new TestValidator();
 			validator.RuleForEach(x => x.NickNames).NotNull()
 				.WhenAsync((x, token) => Task.FromResult(false));
-			var result = validator.Validate(new Person { NickNames = new string[0] });
-			result.IsValid.ShouldBeTrue();
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() =>
+				validator.Validate(new Person {NickNames = new string[0]}));
 		}
 
 		[Fact]
-		public void Async_condition_executed_synchronosuly_with_asynchronous_collection_rule() {
+		public void Async_condition_throws_when_invoked_synchronosuly_with_asynchronous_collection_rule() {
 			var validator = new TestValidator();
 			validator.RuleForEach(x => x.NickNames)
 				.MustAsync((n, c) => Task.FromResult(n != null))
 				.WhenAsync((x, token) => Task.FromResult(false));
-			var result = validator.Validate(new Person { NickNames = new string[0]});
-			result.IsValid.ShouldBeTrue();
+
+			Assert.Throws<AsyncValidatorInvokedSynchronouslyException>(() => validator.Validate(new Person {NickNames = new string[0]}));
 		}
 
 		[Fact]

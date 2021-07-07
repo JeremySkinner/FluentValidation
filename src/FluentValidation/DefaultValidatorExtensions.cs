@@ -62,19 +62,6 @@ namespace FluentValidation {
 			return rb;
 		}
 
-#pragma warning disable 618
-		/// <summary>
-		/// Associates a legacy property validator with this rule.
-		/// </summary>
-		/// <param name="rule"></param>
-		/// <param name="legacyPropertyValidator">The validator to set</param>
-		/// <returns></returns>
-		public static IRuleBuilderOptions<T, TProperty> SetValidator<T, TProperty>(this IRuleBuilder<T, TProperty> rule, PropertyValidator legacyPropertyValidator) {
-			return rule.SetAsyncValidator(new LegacyValidatorAdaptor<T, TProperty>(legacyPropertyValidator));
-		}
-
-#pragma warning restore 618
-
 		/// <summary>
 		/// Defines a 'not null' validator on the current rule builder.
 		/// Validation will fail if the property is null.

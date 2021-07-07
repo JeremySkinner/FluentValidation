@@ -33,86 +33,6 @@ namespace FluentValidation.TestHelper {
 
 	public static class ValidationTestExtension {
 		internal const string MatchAnyFailure = "__FV__ANY";
-#pragma warning disable 618
-
-
-		[Obsolete("This method is deprecated and will be removed in version 11. Use the TestValidate method instead. See https://docs.fluentvalidation.net/en/latest/testing.html")]
-		public static IEnumerable<ValidationFailure> ShouldHaveValidationErrorFor<T, TValue>(this IValidator<T> validator,
-			Expression<Func<T, TValue>> expression, TValue value, string ruleSet = null) where T : class, new() {
-			var instanceToValidate = new T();
-
-			var memberAccessor = new MemberAccessor<T, TValue>(expression, true);
-			memberAccessor.Set(instanceToValidate, value);
-
-			var testValidationResult = validator.TestValidate(instanceToValidate, ruleSet);
-			return testValidationResult.ShouldHaveValidationErrorFor(expression);
-		}
-
-		[Obsolete("This method is deprecated and will be removed in version 11. Use the TestValidate method instead. See https://docs.fluentvalidation.net/en/latest/testing.html")]
-		public static IEnumerable<ValidationFailure> ShouldHaveValidationErrorFor<T, TValue>(this IValidator<T> validator, Expression<Func<T, TValue>> expression, T objectToTest, string ruleSet = null) where T : class {
-			var value = expression.Compile()(objectToTest);
-			var testValidationResult = validator.TestValidate(objectToTest, ruleSet);
-			return testValidationResult.ShouldHaveValidationErrorFor(expression);
-		}
-
-		[Obsolete("This method is deprecated and will be removed in version 11. Use the TestValidate method instead. See https://docs.fluentvalidation.net/en/latest/testing.html")]
-		public static void ShouldNotHaveValidationErrorFor<T, TValue>(this IValidator<T> validator,
-			Expression<Func<T, TValue>> expression, TValue value, string ruleSet = null) where T : class, new() {
-
-			var instanceToValidate = new T();
-
-			var memberAccessor = new MemberAccessor<T, TValue>(expression, true);
-			memberAccessor.Set(instanceToValidate, value);
-
-			var testValidationResult = validator.TestValidate(instanceToValidate, ruleSet);
-			testValidationResult.ShouldNotHaveValidationErrorFor(expression);
-		}
-
-		[Obsolete("This method is deprecated and will be removed in version 11. Use the TestValidate method instead. See https://docs.fluentvalidation.net/en/latest/testing.html")]
-		public static void ShouldNotHaveValidationErrorFor<T, TValue>(this IValidator<T> validator, Expression<Func<T, TValue>> expression, T objectToTest, string ruleSet = null) where T : class {
-			var value = expression.Compile()(objectToTest);
-			var testValidationResult = validator.TestValidate(objectToTest, ruleSet);
-			testValidationResult.ShouldNotHaveValidationErrorFor(expression);
-		}
-
-		[Obsolete("This method is deprecated and will be removed in version 11. Use the TestValidateAsync method instead. See https://docs.fluentvalidation.net/en/latest/testing.html")]
-		public static async Task<IEnumerable<ValidationFailure>> ShouldHaveValidationErrorForAsync<T, TValue>(this IValidator<T> validator,
-			Expression<Func<T, TValue>> expression, TValue value, CancellationToken cancellationToken = default, string ruleSet = null) where T : class, new() {
-			var instanceToValidate = new T();
-
-			var memberAccessor = new MemberAccessor<T, TValue>(expression, true);
-			memberAccessor.Set(instanceToValidate, value);
-
-			var testValidationResult = await validator.TestValidateAsync(instanceToValidate, cancellationToken, ruleSet);
-			return testValidationResult.ShouldHaveValidationErrorFor(expression);
-		}
-
-		[Obsolete("This method is deprecated and will be removed in version 11. Use the TestValidateAsync method instead. See https://docs.fluentvalidation.net/en/latest/testing.html")]
-		public static async Task<IEnumerable<ValidationFailure>> ShouldHaveValidationErrorForAsync<T, TValue>(this IValidator<T> validator, Expression<Func<T, TValue>> expression, T objectToTest, CancellationToken cancellationToken = default, string ruleSet = null) where T : class {
-			var value = expression.Compile()(objectToTest);
-			var testValidationResult = await validator.TestValidateAsync(objectToTest, cancellationToken, ruleSet);
-			return testValidationResult.ShouldHaveValidationErrorFor(expression);
-		}
-
-		[Obsolete("This method is deprecated and will be removed in version 11. Use the TestValidateAsync method instead. See https://docs.fluentvalidation.net/en/latest/testing.html")]
-		public static async Task ShouldNotHaveValidationErrorForAsync<T, TValue>(this IValidator<T> validator,
-			Expression<Func<T, TValue>> expression, TValue value, CancellationToken cancellationToken = default, string ruleSet = null) where T : class, new() {
-
-			var instanceToValidate = new T();
-
-			var memberAccessor = new MemberAccessor<T, TValue>(expression, true);
-			memberAccessor.Set(instanceToValidate, value);
-
-			var testValidationResult = await validator.TestValidateAsync(instanceToValidate, cancellationToken, ruleSet);
-			testValidationResult.ShouldNotHaveValidationErrorFor(expression);
-		}
-
-		[Obsolete("This method is deprecated and will be removed in version 11. Use the TestValidateAsync method instead. See https://docs.fluentvalidation.net/en/latest/testing.html")]
-		public static async Task ShouldNotHaveValidationErrorForAsync<T, TValue>(this IValidator<T> validator, Expression<Func<T, TValue>> expression, T objectToTest, CancellationToken cancellationToken = default, string ruleSet = null) where T : class {
-			var testValidationResult = await validator.TestValidateAsync(objectToTest, cancellationToken, ruleSet);
-			testValidationResult.ShouldNotHaveValidationErrorFor(expression);
-		}
-#pragma warning restore 618
 
 		//TODO: Should ShouldHaveChildValidator be deprecated? It isn't recommended and leads to brittle tests.
 		public static void ShouldHaveChildValidator<T, TProperty>(this IValidator<T> validator, Expression<Func<T, TProperty>> expression, Type childValidatorType) {
@@ -160,30 +80,19 @@ namespace FluentValidation.TestHelper {
 				.ToArray();
 		}
 
-		[Obsolete("Use the overload that takes an Action<ValidationStrategy> instead, which allows the ruleset to be specified inside the delegate.")]
-		public static TestValidationResult<T> TestValidate<T>(this IValidator<T> validator, T objectToTest, string ruleSet) where T : class {
-			return validator.TestValidate(objectToTest, options => {
-				if (ruleSet != null) {
-					options.IncludeRuleSets(RulesetValidatorSelector.LegacyRulesetSplit(ruleSet));
-				}
-			});
-		}
-
-		[Obsolete("Use the overload that takes an Action<ValidationStrategy> instead, which allows the ruleset to be specified inside the delegate.")]
-		public static async Task<TestValidationResult<T>> TestValidateAsync<T>(this IValidator<T> validator, T objectToTest, CancellationToken cancellationToken, string ruleSet) where T : class {
-			return await validator.TestValidateAsync(objectToTest, options => {
-				if (ruleSet != null) {
-					options.IncludeRuleSets(RulesetValidatorSelector.LegacyRulesetSplit(ruleSet));
-				}
-			}, cancellationToken);
-		}
-
 		/// <summary>
 		/// Performs validation, returning a TestValidationResult which allows assertions to be performed.
 		/// </summary>
 		public static TestValidationResult<T> TestValidate<T>(this IValidator<T> validator, T objectToTest, Action<ValidationStrategy<T>> options = null) where T : class {
 			options ??= _ => { };
-			var validationResult = validator.Validate(objectToTest, options);
+			ValidationResult validationResult;
+			try {
+				validationResult = validator.Validate(objectToTest, options);
+			}
+			catch (AsyncValidatorInvokedSynchronouslyException ex) {
+				throw new AsyncValidatorInvokedSynchronouslyException(ex.ValidatorType.Name + " contains asynchronous rules - please use the asynchronous test methods instead.");
+			}
+
 			return new TestValidationResult<T>(validationResult);
 		}
 

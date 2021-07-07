@@ -99,9 +99,7 @@ namespace FluentValidation.Internal {
 			}
 
 			if (AsyncCondition != null) {
-				if (!AsyncCondition(context, default).GetAwaiter().GetResult()) {
-					return;
-				}
+				throw new AsyncValidatorInvokedSynchronouslyException();
 			}
 
 			var cascade = CascadeMode;
@@ -117,12 +115,12 @@ namespace FluentValidation.Internal {
 					continue;
 				}
 
-				if (step.HasAsyncCondition && !step.InvokeAsyncCondition(context, CancellationToken.None).GetAwaiter().GetResult()) {
-					continue;
+				if (step.HasAsyncCondition) {
+					throw new AsyncValidatorInvokedSynchronouslyException();
 				}
 
 				if (step.ShouldValidateAsynchronously(context)) {
-					InvokePropertyValidatorAsync(context, accessor, propertyName, step, default).GetAwaiter().GetResult();
+					throw new AsyncValidatorInvokedSynchronouslyException();
 				}
 				else {
 					InvokePropertyValidator(context, accessor, propertyName, step);
@@ -137,14 +135,7 @@ namespace FluentValidation.Internal {
 				}
 			}
 
-			if (context.Failures.Count > totalFailures) {
-				// Callback if there has been at least one property validator failed.
-				var failuresThisRound = context.Failures.Skip(totalFailures).ToList();
-#pragma warning disable 618
-				OnFailure?.Invoke(context.InstanceToValidate, failuresThisRound);
-#pragma warning restore 618
-			}
-			else if(DependentRules != null) {
+			if (context.Failures.Count <= totalFailures && DependentRules != null) {
 				foreach (var dependentRule in DependentRules) {
 					dependentRule.Validate(context);
 				}
@@ -224,13 +215,7 @@ namespace FluentValidation.Internal {
 				}
 			}
 
-			if (context.Failures.Count > totalFailures) {
-				var failuresThisRound = context.Failures.Skip(totalFailures).ToList();
-#pragma warning disable 618
-				OnFailure?.Invoke(context.InstanceToValidate, failuresThisRound);
-#pragma warning restore 618
-			}
-			else if (DependentRules != null) {
+			if (context.Failures.Count <= totalFailures && DependentRules != null) {
 				foreach (var dependentRule in DependentRules) {
 					cancellation.ThrowIfCancellationRequested();
 					await dependentRule.ValidateAsync(context, cancellation);
@@ -244,9 +229,6 @@ namespace FluentValidation.Internal {
 			if (!valid) {
 				PrepareMessageFormatterForValidationError(context, accessor.Value);
 				var failure = CreateValidationError(context, accessor.Value, component);
-#pragma warning disable 618
-				component.OnFailure?.Invoke(context.InstanceToValidate, context, accessor.Value, failure.ErrorMessage);
-#pragma warning restore 618
 				context.Failures.Add(failure);
 			}
 		}
@@ -257,9 +239,6 @@ namespace FluentValidation.Internal {
 			if (!valid) {
 				PrepareMessageFormatterForValidationError(context, accessor.Value);
 				var failure = CreateValidationError(context, accessor.Value, component);
-#pragma warning disable 618
-				component.OnFailure?.Invoke(context.InstanceToValidate, context, accessor.Value, failure.ErrorMessage);
-#pragma warning restore 618
 				context.Failures.Add(failure);
 			}
 		}

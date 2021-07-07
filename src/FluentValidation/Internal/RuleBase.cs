@@ -27,7 +27,7 @@ namespace FluentValidation.Internal {
 	using Results;
 	using Validators;
 
-	internal abstract class RuleBase<T, TProperty, TValue> : IValidationRule<T, TValue>, IValidationRuleConfigurable<T,TValue> {
+	internal abstract class RuleBase<T, TProperty, TValue> : IValidationRule<T, TValue> {
 		private readonly List<RuleComponent<T, TValue>> _components = new();
 		private Func<CascadeMode> _cascadeModeThunk;
 		private string _propertyDisplayName;
@@ -92,20 +92,9 @@ namespace FluentValidation.Internal {
 		public string[] RuleSets { get; set; }
 
 		/// <summary>
-		/// Function that will be invoked if any of the validators associated with this rule fail.
-		/// </summary>
-		[Obsolete("OnFailure callbacks are deprecated and will be removed in FluentValidation 11. Please use a custom validator instead.")]
-		public Action<T, IEnumerable<ValidationFailure>> OnFailure { get; set; }
-
-		/// <summary>
-		/// The current validator being configured by this rule.
-		/// </summary>
-		public RuleComponent<T, TValue> CurrentValidator => _components.LastOrDefault();
-
-		/// <summary>
 		/// The current rule component.
 		/// </summary>
-		public RuleComponent<T, TValue> Current => _components.LastOrDefault();
+		public IRuleComponent<T, TValue> Current => _components.LastOrDefault();
 
 		/// <summary>
 		/// Type of the property being validated
@@ -156,8 +145,6 @@ namespace FluentValidation.Internal {
 			_components.Add(component);
 		}
 
-		IRuleComponent<T, TValue> IValidationRuleConfigurable<T, TValue>.Current => Current;
-
 		// /// <summary>
 		// /// Replaces a validator in this rule. Used to wrap validators.
 		// /// </summary>
@@ -198,12 +185,7 @@ namespace FluentValidation.Internal {
 		/// <summary>
 		/// Allows custom creation of an error message
 		/// </summary>
-		public Func<MessageBuilderContext<T, TValue>, string> MessageBuilder { get; set; }
-
-		//TODO: Make this the default version of MessageBuilder for FV 11.
-		Func<IMessageBuilderContext<T, TValue>, string> IValidationRuleConfigurable<T, TValue>.MessageBuilder {
-			set => MessageBuilder = value;
-		}
+		public Func<IMessageBuilderContext<T, TValue>, string> MessageBuilder { get; set; }
 
 		/// <summary>
 		/// Dependent rules
@@ -240,7 +222,7 @@ namespace FluentValidation.Internal {
 				}
 			}
 			else {
-				CurrentValidator.ApplyCondition(predicate);
+				Current.ApplyCondition(predicate);
 			}
 		}
 
@@ -263,7 +245,7 @@ namespace FluentValidation.Internal {
 				}
 			}
 			else {
-				CurrentValidator.ApplyAsyncCondition(predicate);
+				Current.ApplyAsyncCondition(predicate);
 			}
 		}
 

@@ -38,7 +38,7 @@ namespace FluentValidation {
 		/// <param name="configurator">Action to configure the object.</param>
 		/// <returns></returns>
 		public static IRuleBuilderInitial<T, TProperty> Configure<T, TProperty>(this IRuleBuilderInitial<T, TProperty> ruleBuilder, Action<IValidationRule<T, TProperty>> configurator) {
-			configurator((IValidationRule<T, TProperty>) Configurable(ruleBuilder));
+			configurator(Configurable(ruleBuilder));
 			return ruleBuilder;
 		}
 
@@ -49,7 +49,7 @@ namespace FluentValidation {
 		/// <param name="configurator">Action to configure the object.</param>
 		/// <returns></returns>
 		public static IRuleBuilderOptions<T, TProperty> Configure<T, TProperty>(this IRuleBuilderOptions<T, TProperty> ruleBuilder, Action<IValidationRule<T, TProperty>> configurator) {
-			configurator((IValidationRule<T, TProperty>) Configurable(ruleBuilder));
+			configurator(Configurable(ruleBuilder));
 			return ruleBuilder;
 		}
 
@@ -69,8 +69,8 @@ namespace FluentValidation {
 		/// </summary>
 		/// <param name="ruleBuilder">The rule builder.</param>
 		/// <returns>A configurable IValidationRule instance.</returns>
-		public static IValidationRuleConfigurable<T, TProperty> Configurable<T, TProperty>(IRuleBuilder<T, TProperty> ruleBuilder) {
-			return ((IRuleBuilderInternal<T, TProperty>) ruleBuilder).GetConfigurableRule();
+		public static IValidationRule<T, TProperty> Configurable<T, TProperty>(IRuleBuilder<T, TProperty> ruleBuilder) {
+			return ((IRuleBuilderInternal<T, TProperty>) ruleBuilder).Rule;
 		}
 
 		/// <summary>
@@ -79,7 +79,7 @@ namespace FluentValidation {
 		/// <param name="ruleBuilder">The rule builder.</param>
 		/// <returns>A configurable IValidationRule instance.</returns>
 		public static ICollectionRule<T, TCollectionElement> Configurable<T, TCollectionElement>(IRuleBuilderInitialCollection<T, TCollectionElement> ruleBuilder) {
-			return (ICollectionRule<T, TCollectionElement>) ((IRuleBuilderInternal<T, TCollectionElement>) ruleBuilder).GetConfigurableRule();
+			return (ICollectionRule<T, TCollectionElement>) ((IRuleBuilderInternal<T, TCollectionElement>) ruleBuilder).Rule;
 		}
 
 		/// <summary>
@@ -100,36 +100,6 @@ namespace FluentValidation {
 		public static IRuleBuilderInitialCollection<T, TProperty> Cascade<T, TProperty>(this IRuleBuilderInitialCollection<T, TProperty> ruleBuilder, CascadeMode cascadeMode) {
 			Configurable(ruleBuilder).CascadeMode = cascadeMode;
 			return ruleBuilder;
-		}
-
-		/// <summary>
-		/// Specifies a custom action to be invoked when the validator fails.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <typeparam name="TProperty"></typeparam>
-		/// <param name="rule"></param>
-		/// <param name="onFailure"></param>
-		/// <returns></returns>
-		[Obsolete("OnAnyFailure callbacks are deprecated and will be removed in FluentValidation 11. Please use a custom validator instead.")]
-		public static IRuleBuilderOptions<T, TProperty> OnAnyFailure<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, Action<T> onFailure) {
-			if (onFailure == null) throw new ArgumentNullException(nameof(onFailure));
-			Configurable(rule).OnFailure = (x, _) => onFailure(x);
-			return rule;
-		}
-
-		/// <summary>
-		/// Specifies a custom action to be invoked when the validator fails.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <typeparam name="TProperty"></typeparam>
-		/// <param name="rule"></param>
-		/// <param name="onFailure"></param>
-		/// <returns></returns>
-		[Obsolete("OnAnyFailure callbacks are deprecated and will be removed in FluentValidation 11. Please use a custom validator instead.")]
-		public static IRuleBuilderOptions<T, TProperty> OnAnyFailure<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, Action<T, IEnumerable<ValidationFailure>> onFailure) {
-			if (onFailure == null) throw new ArgumentNullException(nameof(onFailure));
-			Configurable(rule).OnFailure = onFailure;
-			return rule;
 		}
 
 		/// <summary>
@@ -554,48 +524,6 @@ namespace FluentValidation {
 			}
 
 			Configurable(rule).Current.SeverityProvider = SeverityProvider;
-			return rule;
-		}
-
-		/// <summary>
-		/// Specifies custom method that will be called when specific rule fails
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <typeparam name="TProperty"></typeparam>
-		/// <param name="rule"></param>
-		/// <param name="onFailure"></param>
-		/// <returns></returns>
-		[Obsolete("OnFailure callbacks are deprecated and will be removed in FluentValidation 11. Please use a custom validator instead.")]
-		public static IRuleBuilderOptions<T, TProperty> OnFailure<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, Action<T> onFailure) {
-			Configurable(rule).Current.OnFailure = (instance, _, _, _) => onFailure(instance);
-			return rule;
-		}
-
-		/// <summary>
-		/// Specifies custom method that will be called when specific rule fails
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <typeparam name="TProperty"></typeparam>
-		/// <param name="rule"></param>
-		/// <param name="onFailure"></param>
-		/// <returns></returns>
-		[Obsolete("OnFailure callbacks are deprecated and will be removed in FluentValidation 11. Please use a custom validator instead.")]
-		public static IRuleBuilderOptions<T, TProperty> OnFailure<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, Action<T, ValidationContext<T>, TProperty> onFailure) {
-			Configurable(rule).Current.OnFailure = (instance, context, val, _) => onFailure(instance, context, val);
-			return rule;
-		}
-
-		/// <summary>
-		/// Specifies custom method that will be called when specific rule fails
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <typeparam name="TProperty"></typeparam>
-		/// <param name="rule"></param>
-		/// <param name="onFailure"></param>
-		/// <returns></returns>
-		[Obsolete("OnFailure callbacks are deprecated and will be removed in FluentValidation 11. Please use a custom validator instead.")]
-		public static IRuleBuilderOptions<T, TProperty> OnFailure<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, Action<T, ValidationContext<T>, TProperty, string> onFailure) {
-			Configurable(rule).Current.OnFailure = onFailure;
 			return rule;
 		}
 

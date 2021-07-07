@@ -30,7 +30,7 @@ namespace FluentValidation {
 		void AddDependentRules(IEnumerable<IValidationRuleInternal<T>> rules);
 	}
 
-	internal interface IValidationRuleInternal<T, TProperty> : IValidationRule<T, TProperty>, IValidationRuleInternal<T>, IValidationRuleConfigurable<T,TProperty> {
+	internal interface IValidationRuleInternal<T, TProperty> : IValidationRule<T, TProperty>, IValidationRuleInternal<T> {
 		new List<RuleComponent<T,TProperty>> Components { get; }
 	}
 }
