@@ -223,9 +223,7 @@ namespace FluentValidation.Tests {
 			});
 			testValidator.RuleFor(x => x.Id).NotEqual(0);
 
-#pragma warning disable 618
-			var assertionRoot = testValidator.TestValidate(new Person(), "Names");
-#pragma warning restore 618
+			var assertionRoot = testValidator.TestValidate(new Person(), opt => opt.IncludeRuleSets("Names"));
 
 			assertionRoot.ShouldHaveValidationErrorFor(x => x.Forename)
 				.WithErrorCode("NotNullValidator");

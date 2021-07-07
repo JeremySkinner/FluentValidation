@@ -47,9 +47,6 @@ namespace FluentValidation.Internal {
 			_propertyValidator = propertyValidator;
 		}
 
-		[Obsolete("The Options property will be removed in FluentValidation 11. All properties from Options should be accessed directly on this component instead.")]
-		public RuleComponent<T, TProperty> Options => this;
-
 		/// <inheritdoc />
 		public bool HasCondition => _condition != null;
 
@@ -57,14 +54,8 @@ namespace FluentValidation.Internal {
 		public bool HasAsyncCondition => _asyncCondition != null;
 
 		/// <inheritdoc />
-		public virtual IPropertyValidator Validator {
-			get {
-				if (_propertyValidator is ILegacyValidatorAdaptor l) {
-					return l.UnderlyingValidator;
-				}
-				return (IPropertyValidator) _propertyValidator ?? _asyncPropertyValidator;
-			}
-		}
+		public virtual IPropertyValidator Validator
+			=> (IPropertyValidator) _propertyValidator ?? _asyncPropertyValidator;
 
 		private protected virtual bool SupportsAsynchronousValidation
 			=> _asyncPropertyValidator != null;
