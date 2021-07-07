@@ -66,12 +66,6 @@ namespace FluentValidation.Internal {
 		/// </summary>
 		/// <param name="errorMessage">The error message to set</param>
 		void SetErrorMessage(string errorMessage);
-
-		/// <summary>
-		/// Sets the on failure callback.
-		/// </summary>
-		[Obsolete("OnFailure callbacks are deprecated and will be removed in FluentValidation 11. Please use a custom validator instead.")]
-		Action<T, ValidationContext<T>, TProperty, string> OnFailure { set; }
 	}
 
 	/// <summary>

@@ -184,13 +184,7 @@ namespace FluentValidation.Internal {
 
 			AfterValidate:
 
-			if (context.Failures.Count > totalFailures) {
-				var failuresThisRound = context.Failures.Skip(totalFailures).ToList();
-#pragma warning disable 618
-				OnFailure?.Invoke(context.InstanceToValidate, failuresThisRound);
-#pragma warning restore 618
-			}
-			else if (DependentRules != null) {
+			if (context.Failures.Count <= totalFailures && DependentRules != null) {
 				foreach (var dependentRule in DependentRules) {
 					dependentRule.Validate(context);
 				}
@@ -299,13 +293,7 @@ namespace FluentValidation.Internal {
 
 			AfterValidate:
 
-			if (context.Failures.Count > totalFailures) {
-				var failuresThisRound = context.Failures.Skip(totalFailures).ToList();
-#pragma warning disable 618
-				OnFailure?.Invoke(context.InstanceToValidate, failuresThisRound);
-#pragma warning restore 618
-			}
-			else if (DependentRules != null) {
+			if (context.Failures.Count <= totalFailures && DependentRules != null) {
 				foreach (var dependentRule in DependentRules) {
 					cancellation.ThrowIfCancellationRequested();
 					await dependentRule.ValidateAsync(context, cancellation);
@@ -375,9 +363,6 @@ namespace FluentValidation.Internal {
 			if (!valid) {
 				PrepareMessageFormatterForValidationError(context, value);
 				var failure = CreateValidationError(context, value, component);
-#pragma warning disable 618
-				component.OnFailure?.Invoke(context.InstanceToValidate, context, value, failure.ErrorMessage);
-#pragma warning restore 618
 				context.Failures.Add(failure);
 			}
 		}
@@ -389,9 +374,6 @@ namespace FluentValidation.Internal {
 			if (!valid) {
 				PrepareMessageFormatterForValidationError(context, value);
 				var failure = CreateValidationError(context, value, component);
-#pragma warning disable 618
-				component.OnFailure?.Invoke(context.InstanceToValidate, context, value, failure.ErrorMessage);
-#pragma warning restore 618
 				context.Failures.Add(failure);
 			}
 		}
