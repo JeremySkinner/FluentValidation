@@ -24,9 +24,7 @@ namespace FluentValidation.AspNetCore {
 	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.AspNetCore.Mvc.ModelBinding;
-#if NETCOREAPP3_1 || NET5_0
 	using Microsoft.AspNetCore.Mvc.RazorPages;
-#endif
 
 	public static class ValidationResultExtension {
 
@@ -65,7 +63,7 @@ namespace FluentValidation.AspNetCore {
 		/// <returns>Array of ruleset names</returns>
 		public static string[] GetRuleSetsForClientValidation(this HttpContext context) {
 			// If the httpContext is null (for example, if IHttpContextProvider hasn't been registered) then just assume default ruleset.
-			// This is OK because if we're actually using the attribute, the OnActionExecuting will have caught the fact that the provider is not registered. 
+			// This is OK because if we're actually using the attribute, the OnActionExecuting will have caught the fact that the provider is not registered.
 
 			if (context?.Items != null && context.Items.ContainsKey(_rulesetKey) && context?.Items[_rulesetKey] is string[] ruleSets) {
 				return ruleSets;
@@ -81,13 +79,11 @@ namespace FluentValidation.AspNetCore {
 		/// <param name="ruleSets">Array of ruleset names</param>
 		public static void SetRulesetForClientsideMessages(this ControllerContext context, params string[] ruleSets) => context.HttpContext.SetRulesetForClientsideMessages(ruleSets);
 
-#if NETCOREAPP3_1 || NET5_0
 		/// <summary>
 		/// Sets the rulests used when generating clientside messages.
 		/// </summary>
 		/// <param name="context">Page context</param>
 		/// <param name="ruleSets">Array of ruleset names</param>
 		public static void SetRulesetForClientsideMessages(this PageContext context, params string[] ruleSets) => context.HttpContext.SetRulesetForClientsideMessages(ruleSets);
-#endif
 	}
 }

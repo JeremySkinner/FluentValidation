@@ -37,8 +37,8 @@ namespace FluentValidation.AspNetCore {
 			return ValidateInternal(metadata, key, model, BaseValidate);
 		}
 
-#if NET5_0
-		// .NET 5 has this additional overload as an entry point.
+#if !NETCOREAPP3_1
+		// .NET 5+ has this additional overload as an entry point.
 		public override bool Validate(ModelMetadata metadata, string key, object model, bool alwaysValidateAtTopLevel, object container) {
 			bool BaseValidate()
 				=> base.Validate(metadata, key, model, alwaysValidateAtTopLevel, container);

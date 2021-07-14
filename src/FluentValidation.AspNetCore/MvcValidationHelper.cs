@@ -28,10 +28,8 @@ namespace FluentValidation.AspNetCore {
 	using Microsoft.AspNetCore.Mvc.Controllers;
 	using Microsoft.AspNetCore.Mvc.ModelBinding;
 	using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-#if NETCOREAPP3_1 || NET5_0
 	using Microsoft.AspNetCore.Mvc.RazorPages;
 	using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
-#endif
 	using Microsoft.Extensions.DependencyInjection;
 
 	/// <summary>
@@ -97,7 +95,6 @@ namespace FluentValidation.AspNetCore {
 					attribute = descriptors[0].ParameterInfo.GetCustomAttributes(typeof(CustomizeValidatorAttribute), true).FirstOrDefault() as CustomizeValidatorAttribute;
 				}
 			}
-#if NETCOREAPP3_1 || NET5_0
 			else if (actionContext is PageContext pageContext && pageContext.ActionDescriptor?.BoundProperties != null) {
 
 				var descriptors = FilterParameterDescriptors<PageBoundPropertyDescriptor>(pageContext.ActionDescriptor.BoundProperties);
@@ -106,7 +103,6 @@ namespace FluentValidation.AspNetCore {
 					attribute = descriptors[0].Property.GetCustomAttributes(typeof(CustomizeValidatorAttribute), true).FirstOrDefault() as CustomizeValidatorAttribute;
 				}
 			}
-#endif
 
 			return attribute ?? new CustomizeValidatorAttribute();
 		}
