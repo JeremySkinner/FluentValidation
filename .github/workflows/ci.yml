@@ -42,3 +42,9 @@ jobs:
       shell: pwsh
       env:
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results-${{ matrix.os }}
+        path: src/**/TestResults/*.trx

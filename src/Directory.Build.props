@@ -17,6 +17,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <AssemblyOriginatorKeyFile>$(MSBuildProjectDirectory)/../FluentValidation-Release.snk</AssemblyOriginatorKeyFile>
     <PackageOutputPath>$(MSBuildProjectDirectory)/../../.build/packages</PackageOutputPath>
+    <VSTestLogger>trx%3bLogFileName=$(MSBuildProjectName)-$(TargetFramework).trx</VSTestLogger>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\logo\fluent-validation-icon.png" Pack="true" PackagePath="" />

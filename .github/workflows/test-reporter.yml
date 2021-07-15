@@ -1,0 +1,19 @@
+name: Test Report
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  report:
+    runs-on: 'ubuntu-20.04'
+    steps:
+    - uses: dorny/test-reporter@v1
+      with:
+        artifact: /test-results-(.*)/
+        name: Test Report $1
+        path: '**/*.trx'
+        reporter: dotnet-trx
+        list-tests: failed

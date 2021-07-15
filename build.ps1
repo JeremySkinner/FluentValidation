@@ -27,7 +27,7 @@ target compile {
 }
 
 target test {
-  Invoke-Dotnet test $solution_file -c $configuration --no-build --logger trx
+  Invoke-Dotnet test $solution_file -c $configuration --no-build
 }
 
 target deploy {
